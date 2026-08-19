@@ -115,7 +115,7 @@ Write-Host "5. Select this exact folder:"
 Write-Host ""
 Write-Host "   $BrowserDir" -ForegroundColor Cyan
 Write-Host ""
-Write-Host '6. Confirm that "GPT Coding Prompt Bridge" appears enabled.'
+Write-Host '6. Confirm that "GPT Coding Bridge" appears enabled.'
 Write-Host "7. Keep the extension enabled while using GPT Coding."
 Write-Host ""
 Write-Host "IMPORTANT: GPT Coding only inserts the prepared prompt. Review it and press Send in ChatGPT manually." -ForegroundColor Yellow
