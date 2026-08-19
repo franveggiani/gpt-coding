@@ -72,7 +72,7 @@ printf '3. Enable "Developer mode" in the top-right corner.\n'
 printf '4. Click "Load unpacked".\n'
 printf '5. Select this exact folder:\n\n'
 printf '   %s\n\n' "$BROWSER_DIR"
-printf '6. Confirm that "GPT Coding Prompt Bridge" appears enabled.\n'
+printf '6. Confirm that "GPT Coding Bridge" appears enabled.\n'
 printf '7. Keep the extension enabled while using GPT Coding.\n'
 printf '\nIMPORTANT: GPT Coding only inserts the prepared prompt. Review it and press Send in ChatGPT manually.\n'
 printf '\nInstallation finished.\n'
