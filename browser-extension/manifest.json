@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "GPT Coding Bridge",
+  "version": "0.1.0",
+  "description": "Inserts a locally prepared GPT Coding prompt into ChatGPT. It never sends prompts or reads ChatGPT output.",
+  "permissions": [],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
