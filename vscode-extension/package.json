@@ -1,0 +1,58 @@
+{
+  "name": "gpt-coding",
+  "displayName": "GPT Coding",
+  "description": "Delegate a Git branch task to ChatGPT Web with manual Send and Git-based completion detection.",
+  "version": "0.1.0",
+  "publisher": "franveggiani",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:gptCoding.delegateTask",
+    "onCommand:gptCoding.pullCompletedTask",
+    "onCommand:gptCoding.cancelMonitoring"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gptCoding.delegateTask",
+        "title": "GPT Coding: Delegate Task"
+      },
+      {
+        "command": "gptCoding.pullCompletedTask",
+        "title": "GPT Coding: Pull Completed Task"
+      },
+      {
+        "command": "gptCoding.cancelMonitoring",
+        "title": "GPT Coding: Cancel Monitoring"
+      }
+    ],
+    "configuration": {
+      "title": "GPT Coding",
+      "properties": {
+        "gptCoding.pollIntervalSeconds": {
+          "type": "number",
+          "default": 10,
+          "minimum": 5,
+          "maximum": 300,
+          "description": "Seconds between Git remote checks while waiting for an END - commit."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package:vsix": "npm run compile && npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.2"
+  }
+}
