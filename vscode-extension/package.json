@@ -48,7 +48,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package:vsix": "npm run compile && npx @vscode/vsce package"
+    "package:vsix": "npm run compile && npx --yes @vscode/vsce package"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
