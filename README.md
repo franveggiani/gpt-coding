@@ -8,7 +8,7 @@ It is intentionally designed so that **the user remains in control of ChatGPT We
 - the browser extension inserts that prepared prompt into the ChatGPT composer;
 - **the browser extension never presses Send**;
 - **the browser extension never reads, scrapes, extracts, or monitors ChatGPT responses/output**;
-- completion is detected only from Git by waiting for a new commit whose subject starts with `END - `;
+- completion is detected only from Git by waiting for a new remote HEAD commit whose subject starts with `END - `;
 - when that marker appears, the VS Code extension pulls the branch with `git pull --ff-only` when it is safe to do so.
 
 ## Important prerequisite: GitHub write capability in ChatGPT
@@ -76,6 +76,8 @@ The marker is deliberately stored in Git history instead of inferred from the Ch
 
 ```text
 gpt-coding/
+├── install.sh
+├── install.ps1
 ├── browser-extension/
 │   ├── manifest.json
 │   ├── background.js
@@ -94,7 +96,19 @@ gpt-coding/
 
 # Installation
 
-You need to install **both** extensions.
+You need both the VS Code extension and the browser extension. The recommended installation method is to use the installer for your operating system.
+
+## Requirements
+
+- Git installed and available in `PATH`;
+- Node.js 20 or newer;
+- npm;
+- VS Code 1.90+;
+- the VS Code CLI command `code` available in `PATH`;
+- Chrome or another Chromium browser for the browser extension;
+- the Git project you want to delegate must use a `github.com` remote named `origin`.
+
+The installers validate `git`, `node`, `npm`, `code`, the Node.js major version, and the required project files before building.
 
 ## 1. Clone this repository
 
@@ -103,16 +117,81 @@ git clone https://github.com/franveggiani/gpt-coding.git
 cd gpt-coding
 ```
 
-## 2. Install the VS Code extension
+## 2. Automatic installation on Linux/macOS
 
-Requirements:
+Make the installer executable and run it from the repository root:
 
-- Git installed and available in `PATH`;
-- Node.js 20+ recommended;
-- VS Code 1.90+;
-- the project you want to delegate must use a `github.com` remote named `origin`.
+```bash
+chmod +x install.sh
+./install.sh
+```
 
-Build the extension:
+The script will:
+
+1. validate Git, Node.js, npm, and the VS Code CLI;
+2. run `npm install` inside `vscode-extension/`;
+3. compile and package the extension as a `.vsix`;
+4. install/update the VS Code extension with `code --install-extension ... --force`;
+5. validate that `browser-extension/manifest.json` exists;
+6. print the exact `browser-extension/` path and the Chrome installation steps at the end.
+
+The final console output includes instructions similar to:
+
+```text
+========================================
+ MANUAL CHROME SETUP
+========================================
+1. Open Chrome.
+2. Go to: chrome://extensions
+3. Enable "Developer mode".
+4. Click "Load unpacked".
+5. Select this exact folder:
+
+   /absolute/path/to/gpt-coding/browser-extension
+
+6. Confirm that "GPT Coding Bridge" appears enabled.
+7. Keep the extension enabled while using GPT Coding.
+```
+
+## 3. Automatic installation on Windows
+
+From PowerShell in the repository root:
+
+```powershell
+.\install.ps1
+```
+
+If your local PowerShell execution policy blocks local scripts, you can run this single invocation without changing the machine-wide policy:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The PowerShell installer performs the same validation/build/package/install workflow as `install.sh` and finishes by printing the exact Chrome steps and the absolute `browser-extension` directory to select with **Load unpacked**.
+
+Example final output:
+
+```text
+========================================
+ MANUAL CHROME SETUP
+========================================
+1. Open Chrome.
+2. Go to: chrome://extensions
+3. Enable "Developer mode" in the top-right corner.
+4. Click "Load unpacked".
+5. Select this exact folder:
+
+   C:\Projects\gpt-coding\browser-extension
+
+6. Confirm that "GPT Coding Bridge" appears enabled.
+7. Keep the extension enabled while using GPT Coding.
+```
+
+Chrome requires this last browser-extension step to remain manual. The installer does not try to bypass Chrome's extension installation controls.
+
+## 4. Manual VS Code installation
+
+If you do not want to use the installer scripts:
 
 ```bash
 cd vscode-extension
@@ -121,12 +200,16 @@ npm run compile
 npm run package:vsix
 ```
 
-This creates a `.vsix` file in `vscode-extension/`.
+This creates:
+
+```text
+gpt-coding-0.1.0.vsix
+```
 
 Install it with:
 
 ```bash
-code --install-extension gpt-coding-0.1.0.vsix
+code --install-extension gpt-coding-0.1.0.vsix --force
 ```
 
 Alternatively, in VS Code use:
@@ -137,21 +220,24 @@ Extensions -> ... -> Install from VSIX...
 
 and select the generated `.vsix` file.
 
-## 3. Install the browser extension in Chrome
+## 5. Manual browser extension installation in Chrome
 
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
 4. Select the repository's `browser-extension` directory.
+5. Confirm that **GPT Coding Bridge** is enabled.
 
-## 4. Install the browser extension in Microsoft Edge
+No browser-extension build step is required.
+
+## Microsoft Edge
+
+The extension is Manifest V3 and can also be loaded manually in Edge:
 
 1. Open `edge://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
 4. Select the repository's `browser-extension` directory.
-
-No browser-extension build step is required.
 
 # Usage
 
@@ -181,7 +267,7 @@ Then:
 6. the browser extension inserts the full generated prompt into the ChatGPT composer;
 7. **review the prompt and press Send yourself**;
 8. GPT Coding starts checking the selected remote Git branch;
-9. when a new commit after the initial branch SHA has a subject beginning with `END - `, the task is considered complete;
+9. when the new remote HEAD commit after the initial branch SHA has a subject beginning with `END - `, the task is considered complete;
 10. if the same branch is still checked out and the working tree is clean, GPT Coding runs:
 
 ```bash
@@ -217,7 +303,7 @@ MANDATORY COMPLETION PROTOCOL:
 - do not add task commits after the END commit.
 ```
 
-This means intermediate commits are allowed:
+Intermediate commits are allowed:
 
 ```text
 Implement database mapper
@@ -226,7 +312,7 @@ Fix PostgreSQL edge case
 END - complete database mapping support
 ```
 
-Only the `END - ...` commit marks completion.
+Only a remote HEAD whose subject starts with `END - ` marks completion. An older `END - ...` commit followed by another commit does not complete the task.
 
 # Safety behavior
 
